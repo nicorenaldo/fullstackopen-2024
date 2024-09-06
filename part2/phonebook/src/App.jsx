@@ -7,6 +7,8 @@ const App = () => {
   const [filter, setFilter] = useState('');
   const [newName, setNewName] = useState('');
   const [newPhoneNum, setNewPhoneNum] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMesage] = useState('');
 
   useEffect(() => {
     personService.getAll().then((response) => {
@@ -16,18 +18,44 @@ const App = () => {
 
   const onSubmit = (event) => {
     event.preventDefault();
-    if (persons.find((person) => person.name === newName)) {
-      return;
-    }
-
     const newPerson = {
       name: newName,
       number: newPhoneNum,
-      id: `${persons.length + 1}`,
     };
+
+    const existingPerson = persons.find((person) => person.name === newName);
+    if (existingPerson) {
+      const result = window.confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      );
+      if (result) {
+        personService
+          .update(existingPerson.id, newPerson)
+          .then((response) => {
+            setPersons(
+              persons.map((person) =>
+                person.id !== existingPerson.id ? person : response.data
+              )
+            );
+          })
+          .catch(() => {
+            setErrorMessage(
+              `Information of ${newName} has already been removed from server`
+            );
+            setTimeout(() => {
+              setErrorMessage(null);
+            }, 5000);
+          });
+      }
+      return;
+    }
 
     personService.create(newPerson).then((response) => {
       setPersons(persons.concat(response.data));
+      setSuccessMesage(`Added ${newName}`);
+      setTimeout(() => {
+        setSuccessMesage(null);
+      }, 5000);
     });
   };
 
@@ -47,6 +75,11 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter filter={filter} setFilter={setFilter} />
 
+      <Notification
+        errorMessage={errorMessage}
+        successMessage={successMessage}
+      />
+
       <h3>Add a new</h3>
       <PersonForm
         setName={setNewName}
@@ -58,6 +91,43 @@ const App = () => {
       <Persons persons={persons} filter={filter} onDelete={onDelete} />
     </div>
   );
+};
+
+const Notification = ({ errorMessage, successMessage }) => {
+  Notification.propTypes = {
+    errorMessage: PropTypes.string,
+    successMessage: PropTypes.string,
+  };
+
+  const errorStyle = {
+    color: 'red',
+    background: 'lightgrey',
+    'font-size': '20px',
+    'border-style': 'solid',
+    'border-radius': '5px',
+    padding: '10px',
+    'margin-bottom': '10px',
+  };
+
+  const successStyle = {
+    color: 'green',
+    background: 'lightgrey',
+    'font-size': '20px',
+    'border-style': 'solid',
+    'border-radius': '5px',
+    padding: '10px',
+    'margin-bottom': '10px',
+  };
+
+  if (errorMessage) {
+    return <div style={errorStyle}>{errorMessage}</div>;
+  }
+
+  if (successMessage) {
+    return <div style={successStyle}>{successMessage}</div>;
+  }
+
+  return null;
 };
 
 const PersonForm = ({ setName, setPhoneNum, onSubmit }) => {

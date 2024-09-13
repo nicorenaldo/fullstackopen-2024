@@ -8,12 +8,19 @@ const supertest = require('supertest');
 const api = supertest(app);
 
 describe('when there is initially one user in db', () => {
+  beforeAll(async () => {
+    await mongoose.connect(process.env.MONGODB_URI);
+  });
+
+  afterAll(async () => {
+    await mongoose.connection.close();
+  });
+
   beforeEach(async () => {
     await User.deleteMany({});
 
     const passwordHash = await bcrypt.hash('secret', 6);
     const user = new User({ username: 'root', name: 'rootName', passwordHash });
-
     await user.save();
   });
 
@@ -93,6 +100,7 @@ describe('when there is initially one user in db', () => {
       id: expect.any(String),
       username: 'root',
       name: 'rootName',
+      blogs: expect.any(Array),
     });
   });
 });

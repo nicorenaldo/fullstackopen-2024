@@ -37,14 +37,19 @@ const App = () => {
                 person.id !== existingPerson.id ? person : response.data
               )
             );
+            setSuccessMesage(`Updated ${newName}`);
+            setTimeout(() => {
+              setSuccessMesage(null);
+            }, 5000);
           })
-          .catch(() => {
-            setErrorMessage(
-              `Information of ${newName} has already been removed from server`
-            );
+          .catch((error) => {
+            if (error.response && error.response.status === 400) {
+              setErrorMessage(error.response.data.error || 'Bad request');
+            }
             setTimeout(() => {
               setErrorMessage(null);
             }, 5000);
+            console.error('Error updating person:', error);
           });
       }
       return;
@@ -55,8 +60,17 @@ const App = () => {
       setSuccessMesage(`Added ${newName}`);
       setTimeout(() => {
         setSuccessMesage(null);
-      }, 5000);
-    });
+        }, 5000);
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 400) {
+          setErrorMessage(error.response.data.error || 'Bad request');
+        } 
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+        console.error('Error creating person:', error);
+      });
   };
 
   const onDelete = (id) => {
@@ -66,7 +80,13 @@ const App = () => {
         setPersons(persons.filter((person) => person.id !== id));
       })
       .catch((error) => {
-        console.log(error);
+        if (error.response && error.response.status === 404) {
+          setErrorMessage('Person not found');
+        }
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+        console.error('Error deleting person:', error);
       });
   };
 

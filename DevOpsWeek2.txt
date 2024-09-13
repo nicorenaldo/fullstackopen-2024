@@ -1,0 +1,3 @@
+I agree with Bosch's statement that introducing DevOps practices can lead to generally better software products. Implementing DevOps helps in enhancing the speed, quality, and efficiency of software development through many automated processes. This allows developers to focus on creating innovative solutions rather than spending time on repetitive tasks.
+
+I don't agree with this statement "The pattern seemed to be that the individual claiming customers didn’t want DevOps seemed to have the most to gain by not changing things internally." I believe that people who claim that customers don't want DevOps are either not aware of the benefits or may not have the necessary skills to implement DevOps and are therefore scared by the challenge.

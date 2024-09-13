@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const supertest = require('supertest');
 const app = require('../app');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 
 const api = supertest(app);
 
@@ -41,6 +42,15 @@ describe('Blog API', () => {
   });
 
   describe('Adding new data', () => {
+    beforeEach(async () => {
+      await User.deleteMany({});
+      await User.create({
+        username: 'testuser',
+        name: 'Test User',
+        passwordHash: 'dummy',
+      });
+    });
+
     test('POST request creates a new blog', async () => {
       const newBlog = {
         title: 'test',
@@ -50,9 +60,14 @@ describe('Blog API', () => {
       };
 
       const totalBefore = await Blog.countDocuments({});
-      await api.post('/api/blogs').send(newBlog).expect(201);
+      const response = await api.post('/api/blogs').send(newBlog).expect(201);
       const totalAfter = await Blog.countDocuments({});
+
       expect(totalAfter).toBe(totalBefore + 1);
+      expect(response.body.user).toBeDefined();
+
+      const user = await User.findOne({});
+      expect(user.blogs).toContainEqual(response.body.id);
     });
 
     test('like defaults to 0', async () => {

@@ -1,42 +1,73 @@
 const blogRouter = require('express').Router();
 const Blog = require('../models/blog');
+const middleware = require('../utils/middleware');
 
 blogRouter.get('/', async (request, response, next) => {
   try {
-    const blogs = await Blog.find({});
+    const blogs = await Blog.find({}).populate('user', {
+      username: 1,
+      name: 1,
+    });
     response.json(blogs);
   } catch (error) {
     next(error);
   }
 });
 
-blogRouter.post('/', async (request, response, next) => {
-  const blog = new Blog(request.body);
-  if (!blog.likes) {
-    blog.likes = 0;
-  }
+blogRouter.post(
+  '/',
+  middleware.userExtractor,
+  async (request, response, next) => {
+    try {
+      const user = request.user;
 
-  if (!blog.title || !blog.url || !blog.author) {
-    response.status(400).send({ error: 'title, url and author are required' });
-    return;
-  }
+      const blog = new Blog({
+        likes: request.body.likes || 0,
+        ...request.body,
+        user: user._id,
+      });
 
-  try {
-    const result = await blog.save();
-    response.status(201).json(result);
-  } catch (error) {
-    next(error);
-  }
-});
+      if (!blog.title || !blog.url || !blog.author) {
+        return response
+          .status(400)
+          .json({ error: 'title, url and author are required' });
+      }
 
-blogRouter.delete('/:id', async (request, response, next) => {
-  try {
-    await Blog.findByIdAndDelete(request.params.id);
-    response.status(204).end();
-  } catch (error) {
-    next(error);
+      const savedBlog = await blog.save();
+
+      user.blogs = user.blogs.concat(savedBlog._id);
+      await user.save();
+
+      response.status(201).json(savedBlog);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
+
+blogRouter.delete(
+  '/:id',
+  middleware.userExtractor,
+  async (request, response, next) => {
+    try {
+      const user = request.user;
+
+      const blogToDelete = await Blog.findById(request.params.id);
+      if (!blogToDelete) {
+        return response.status(404).json({ error: 'blog not found' });
+      }
+
+      if (blogToDelete.user.toString() !== user.id.toString()) {
+        return response.status(401).json({ error: 'token invalid' });
+      }
+
+      await Blog.findByIdAndDelete(request.params.id);
+      response.status(204).end();
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 blogRouter.put('/:id', async (request, response, next) => {
   try {

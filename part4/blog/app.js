@@ -7,6 +7,9 @@ const blogRouter = require('./controllers/blog');
 const loginRouter = require('./controllers/login');
 const middleware = require('./utils/middleware');
 const logger = require('./utils/logger');
+const Blog = require('./models/blog');
+const User = require('./models/user');
+
 const mongoose = require('mongoose');
 
 mongoose.set('strictQuery', false);
@@ -23,14 +26,17 @@ mongoose
   });
 
 app.use(cors());
-// app.use(express.static('dist'));
 app.use(express.json());
-
-// app.use(middleware.tokenExtractor);
 
 app.use('/api/blogs', blogRouter);
 app.use('/api/users', userRouter);
 app.use('/api/login', loginRouter);
+app.use('/api/reset', async (request, response) => {
+  console.log('resetting');
+  await Blog.deleteMany({});
+  await User.deleteMany({});
+  response.status(204).end();
+});
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

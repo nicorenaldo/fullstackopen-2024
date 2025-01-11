@@ -18,7 +18,12 @@ describe('Blog component', () => {
 
   test('renders title and author but not url or likes by default', () => {
     render(
-      <Blog blog={blog} handleLikeCallback={null} handleDeleteCallback={null} />
+      <Blog
+        user={blog.user}
+        blog={blog}
+        handleLikeCallback={null}
+        handleDeleteCallback={null}
+      />
     );
 
     // Check that title and author are visible
@@ -32,7 +37,12 @@ describe('Blog component', () => {
 
   test('shows url and likes when view button is clicked', () => {
     render(
-      <Blog blog={blog} handleLikeCallback={null} handleDeleteCallback={null} />
+      <Blog
+        user={blog.user}
+        blog={blog}
+        handleLikeCallback={null}
+        handleDeleteCallback={null}
+      />
     );
 
     const button = screen.getByText('view');
@@ -47,6 +57,7 @@ describe('Blog component', () => {
     const handleLikeCallback = vi.fn();
     render(
       <Blog
+        user={blog.user}
         blog={blog}
         handleLikeCallback={handleLikeCallback}
         handleDeleteCallback={null}

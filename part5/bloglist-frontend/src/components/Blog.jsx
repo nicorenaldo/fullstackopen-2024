@@ -1,11 +1,13 @@
 import { useState } from 'react';
 
-function Blog({ blog, handleLikeCallback, handleDeleteCallback }) {
+function Blog({ user, blog, handleLikeCallback, handleDeleteCallback }) {
   const [open, setOpen] = useState(false);
 
   return (
     <div
-      id='blog-post'
+      data-testid='blog-item'
+      data-likes={blog.likes}
+      data-title={blog.title}
       style={{
         padding: '4px',
         border: '1px solid black',
@@ -37,9 +39,14 @@ function Blog({ blog, handleLikeCallback, handleDeleteCallback }) {
             </button>
           </div>
           <p id='owner'>{blog.user.name}</p>
-          <button id='delete-button' onClick={() => handleDeleteCallback(blog)}>
-            delete
-          </button>
+          {blog.user.username === user.username && (
+            <button
+              id='delete-button'
+              onClick={() => handleDeleteCallback(blog)}
+            >
+              delete
+            </button>
+          )}
         </div>
       )}
     </div>

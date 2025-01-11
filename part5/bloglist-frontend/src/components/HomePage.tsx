@@ -43,12 +43,19 @@ function HomePage({ user, setUser, setSuccessMessage, setErrorMessage }) {
   const handleDeleteCallback = (blog) => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
       blogService
-        .delete(blog.id)
+        .deleteBlog(blog.id)
         .then(() => {
           setBlogs(blogs.filter((b) => b.id !== blog.id));
+          setSuccessMessage('blog deleted');
+          setTimeout(() => {
+            setSuccessMessage(null);
+          }, 5000);
         })
         .catch((error) => {
           setErrorMessage('Error deleting blog');
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
         });
     }
   };
@@ -92,6 +99,7 @@ function HomePage({ user, setUser, setSuccessMessage, setErrorMessage }) {
       {blogs.map((blog) => (
         <Blog
           key={blog.id}
+          user={user}
           blog={blog}
           handleLikeCallback={handleLikeCallback}
           handleDeleteCallback={handleDeleteCallback}

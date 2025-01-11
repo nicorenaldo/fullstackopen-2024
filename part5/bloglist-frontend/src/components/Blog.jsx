@@ -1,37 +1,24 @@
 import { useState } from 'react';
-import blogService from '../services/blogs';
 
 function Blog({ blog, handleLikeCallback, handleDeleteCallback }) {
   const [open, setOpen] = useState(false);
 
-  const handleLike = () => {
-    blogService.update(blog.id, {
-      ...blog,
-      likes: blog.likes + 1,
-    });
-    handleLikeCallback(blog.id);
-  };
-
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this blog?')) {
-      blogService.delete(blog.id);
-      handleDeleteCallback(blog.id);
-    }
-  };
-
   return (
     <div
+      id='blog-post'
       style={{
         padding: '4px',
         border: '1px solid black',
       }}
     >
       <div
-        id='title'
+        id='header'
         style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
       >
-        <p>{blog.title}</p>
+        <p id='title'>{blog.title}</p>
+        <p id='author'>{blog.author}</p>
         <button
+          id='view-button'
           style={{
             height: '20px',
           }}
@@ -42,13 +29,17 @@ function Blog({ blog, handleLikeCallback, handleDeleteCallback }) {
       </div>
       {open && (
         <div id='detail'>
-          <p>url: {blog.url}</p>
+          <p id='url'>{blog.url}</p>
           <div style={{ display: 'flex' }}>
-            <p>likes: {blog.likes}</p>
-            <button onClick={handleLike}>like</button>
+            <p id='likes'>{blog.likes}</p>
+            <button id='like-button' onClick={() => handleLikeCallback(blog)}>
+              like
+            </button>
           </div>
-          <p>author: {blog.author}</p>
-          <button onClick={handleDelete}>delete</button>
+          <p id='owner'>{blog.user.name}</p>
+          <button id='delete-button' onClick={() => handleDeleteCallback(blog)}>
+            delete
+          </button>
         </div>
       )}
     </div>

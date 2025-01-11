@@ -1,53 +1,27 @@
 import { useState } from 'react';
-import blogService from '../services/blogs';
 
-function CreateBlogForm({
-  blogs,
-  setBlogs,
-  formRef,
-  setErrorMessage,
-  setSuccessMessage,
-}) {
+function CreateBlogForm({ handleNewBlog }) {
   const [blogTitle, setBlogTitle] = useState('');
   const [blogAuthor, setBlogAuthor] = useState('');
   const [blogUrl, setBlogURL] = useState('');
 
-  const handleNewBlog = (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    const newBlog = {
-      title: blogTitle,
-      author: blogAuthor,
-      url: blogUrl,
-    };
-    blogService
-      .create(newBlog)
-      .then((blog) => {
-        formRef.current.toggleVisibility();
-        setBlogs(blogs.concat(blog));
-        setBlogTitle('');
-        setBlogAuthor('');
-        setBlogURL('');
-        setSuccessMessage(`a new blog ${blog.title} by ${blog.author} added`);
-        setTimeout(() => {
-          setSuccessMessage(null);
-        }, 5000);
-      })
-      .catch((error) => {
-        setErrorMessage('Failed to create blog');
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 5000);
-      });
+    handleNewBlog(blogTitle, blogAuthor, blogUrl);
+    setBlogTitle('');
+    setBlogAuthor('');
+    setBlogURL('');
   };
 
   return (
-    <form onSubmit={handleNewBlog}>
+    <form onSubmit={handleSubmit}>
       <div className='flex'>
         <label htmlFor='title'>title:</label>
         <input
           type='text'
           value={blogTitle}
           name='title'
+          id='title'
           onChange={({ target }) => setBlogTitle(target.value)}
         />
       </div>
@@ -57,6 +31,7 @@ function CreateBlogForm({
           type='text'
           value={blogAuthor}
           name='author'
+          id='author'
           onChange={({ target }) => setBlogAuthor(target.value)}
         />
       </div>
@@ -66,6 +41,7 @@ function CreateBlogForm({
           type='text'
           value={blogUrl}
           name='url'
+          id='url'
           onChange={({ target }) => setBlogURL(target.value)}
         />
       </div>

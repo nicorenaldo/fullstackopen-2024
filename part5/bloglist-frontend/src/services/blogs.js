@@ -3,16 +3,16 @@ const baseUrl = '/api/blogs';
 
 let token = null;
 
-export const setToken = (newToken) => {
+const setToken = (newToken) => {
   token = `Bearer ${newToken}`;
 };
 
-export const getAll = () => {
+const getAll = () => {
   const request = axios.get(baseUrl);
   return request.then((response) => response.data);
 };
 
-export const create = (newObject, token) => {
+const create = (newObject) => {
   const config = {
     headers: { Authorization: token },
   };
@@ -21,12 +21,29 @@ export const create = (newObject, token) => {
   return request.then((response) => response.data);
 };
 
-export const update = (id, newObject) => {
-  const request = axios.put(`${baseUrl}/${id}`, newObject);
+const update = (id, newObject) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  const request = axios.put(
+    `${baseUrl}/${id}`,
+    {
+      ...newObject,
+      user: newObject.user.id,
+    },
+    config
+  );
   return request.then((response) => response.data);
 };
 
-export const deleteBlog = (id) => {
-  const request = axios.delete(`${baseUrl}/${id}`);
+const deleteBlog = (id) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  const request = axios.delete(`${baseUrl}/${id}`, config);
   return request.then((response) => response.data);
 };
+
+const blogService = { setToken, getAll, create, update, deleteBlog };
+
+export default blogService;

@@ -4,7 +4,7 @@ import { createAnecdote } from '../reducers/anecdoteReducer';
 const AnecdoteForm = () => {
   const dispatch = useDispatch();
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
     const content = event.target.anecdote.value;
     if (content.length > 0) {
